@@ -278,10 +278,15 @@
   </div>
   <div class="card">
     <div class="h"><span data-ic="save"></span>Модельді сақтау және көшіру</div>
-    <p class="note" style="margin-top:0">Үлгілер осы телефонда өзі сақталады. Басқа құрылғыға көшіру үшін «Көшіру» түймесін басып, мәтінді сол құрылғыда «Жүктеу» арқылы қойыңыз.</p>
+    <p class="note" style="margin-top:0">Үлгілер осы телефонда өзі сақталады. Басқа телефонға беру үшін «Файлға сақтау» басып, шыққан файлды жіберіңіз. Ол телефонда «Файлдан жүктеу» арқылы ашыңыз.</p>
     <div class="row" style="margin-top:0">
-      <button class="b sec" id="btnExport"><span data-ic="copy"></span>Көшіру</button>
-      <button class="b sec" id="btnImport"><span data-ic="upload"></span>Жүктеу</button>
+      <button class="b sec" id="btnSaveFile"><span data-ic="save"></span>Файлға сақтау</button>
+      <button class="b sec" id="btnLoadFile"><span data-ic="upload"></span>Файлдан жүктеу</button>
+      <input type="file" id="fileModel" accept=".json,application/json,text/plain">
+    </div>
+    <div class="row">
+      <button class="b ghost" id="btnExport"><span data-ic="copy"></span>Мәтінмен көшіру</button>
+      <button class="b ghost" id="btnImport"><span data-ic="upload"></span>Мәтінмен жүктеу</button>
       <button class="b danger" id="btnClear"><span data-ic="trash"></span><span class="lbl">Өшіру</span></button>
     </div>
     <textarea id="modelText" class="hidden" placeholder="Модель мәтінін осында қойыңыз…"></textarea>
@@ -695,6 +700,18 @@ $("btnEval").addEventListener("click",function(){
     '<div>Жалпы дәлдік: '+ok+' / '+n+' үлгі дұрыс танылды</div>'+
     '<div style="margin-top:6px">'+CLASSES.map(function(c,i){return '<b class="tx'+i+'">'+c.name+'</b> '+(per[i][1]?Math.round(per[i][0]/per[i][1]*100)+'%':'—');}).join(' &nbsp;·&nbsp; ')+'</div>'+
     '<div style="margin-top:6px;color:var(--muted)">Әдіс: '+(ai?'MobileNet нейрондық желісі + k-NN':'пішін мен бедер белгілері + k-NN')+'</div>');
+});
+function applyModel(m){if(!m||!m.samples||m.samples.length!==4)throw 0;model=m;saveModel();renderClasses();if(net)backfillEmbeddings();toast("Модель жүктелді: "+totalSamples()+" үлгі");}
+$("btnSaveFile").addEventListener("click",function(){
+  try{var blob=new Blob([JSON.stringify(model)],{type:"application/json"}),a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download="ai-asyk-model.json";document.body.appendChild(a);a.click();a.remove();
+    toast("ai-asyk-model.json файлы сақталды");}catch(e){toast("Файл сақталмады. «Мәтінмен көшіру» түймесін қолданыңыз");}
+});
+$("btnLoadFile").addEventListener("click",function(){$("fileModel").click();});
+$("fileModel").addEventListener("change",function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){try{applyModel(JSON.parse(rd.result));}catch(x){toast("Файл қате. ai-asyk-model.json файлын таңдаңыз");}e.target.value="";};
+  rd.readAsText(f);
 });
 $("btnExport").addEventListener("click",function(){
   var txt=JSON.stringify(model);$("modelText").classList.remove("hidden");$("modelText").value=txt;$("importRow").classList.add("hidden");
