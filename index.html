@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Асық робот</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0b2a5b; --blue:#1d64d8; --blue-2:#3b8bff; --sky:#eaf2ff; --ink:#132442; --muted:#64748b;
+    --gold:#e8a317; --gold-l:#fff4d6;
+    --c0:#2563eb; --c1:#16a34a; --c2:#7c3aed; --c3:#e08a00;
+    --c0l:#e7efff; --c1l:#e4f6ea; --c2l:#f0e9ff; --c3l:#fff2da;
+    --red:#dc3c2e; --bg:#f4f7fc; --line:#e2e8f2; --card:#ffffff;
+    --r:20px; --shadow:0 1px 2px rgba(15,35,70,.04),0 8px 24px rgba(15,35,70,.07);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  body{padding:14px 14px 24px;max-width:720px;margin:0 auto}
+  svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  /* hero */
+  .hero{position:relative;overflow:hidden;border-radius:26px;padding:20px 18px 18px;color:#fff;
+        background:linear-gradient(135deg,#0b2a5b 0%,#1550b8 55%,#2a7cf0 100%);box-shadow:0 12px 30px rgba(21,80,184,.28)}
+  .hero .orn{position:absolute;right:-30px;top:-30px;width:210px;height:210px;opacity:.13}
+  .hero .orn2{position:absolute;left:-40px;bottom:-60px;width:170px;height:170px;opacity:.08}
+  .hero-in{position:relative;display:flex;gap:14px;align-items:center}
+  .kicker{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:800;letter-spacing:1.6px;color:#bcd6ff;text-transform:uppercase}
+  .kicker:before{content:"";width:18px;height:2px;background:var(--gold);border-radius:2px}
+  h1{margin:4px 0 4px;font-size:1.75rem;font-weight:900;line-height:1;letter-spacing:.3px}
+  h1 span{color:var(--gold)}
+  .sub{margin:0;color:#d7e6ff;font-size:.86rem;line-height:1.35;font-weight:600}
+  .robot{flex:none;width:76px;height:76px}
+
+  /* tabs */
+  .tabs{display:flex;background:#e6ecf6;border-radius:16px;padding:4px;margin:14px 0 12px;gap:4px}
+  .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 4px;border-radius:12px;border:0;background:transparent;
+       font:inherit;font-weight:800;font-size:.9rem;color:#4a5b78;cursor:pointer;transition:all .2s}
+  .tab svg.i{width:18px;height:18px}
+  .tab.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,35,70,.1)}
+
+  .card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .h{display:flex;align-items:center;gap:8px;font-weight:900;margin:0 0 10px;font-size:1.02rem}
+  .h svg.i{color:var(--blue)}
+
+  /* stepper */
+  .steps{display:flex;align-items:flex-start;margin:2px 4px 14px}
+  .st{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;text-align:center;font-size:.7rem;font-weight:800;color:#8a99b3;line-height:1.15}
+  .st:not(:last-child):after{content:"";position:absolute;top:16px;left:calc(50% + 20px);right:calc(-50% + 20px);height:3px;border-radius:3px;background:#dbe3ef}
+  .st.done:not(:last-child):after{background:var(--c1)}
+  .st .n{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:3px solid #dbe3ef;font-size:.95rem;color:#8a99b3;transition:all .25s}
+  .st.on{color:var(--blue)} .st.on .n{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 0 0 5px rgba(29,100,216,.15)}
+  .st.done{color:var(--c1)} .st.done .n{border-color:var(--c1);background:var(--c1);color:#fff}
+
+  /* camera */
+  .stage{position:relative;width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#16345f,#0a1a33)}
+  .stage video,.stage canvas.view{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .corners{position:absolute;inset:14%;pointer-events:none}
+  .corners i{position:absolute;width:34px;height:34px;border:4px solid #4ade80;border-radius:4px}
+  .corners i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:14px}
+  .corners i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:14px}
+  .corners i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-bottom-left-radius:14px}
+  .corners i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-bottom-right-radius:14px}
+  .live{position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:7px;background:rgba(8,20,40,.72);backdrop-filter:blur(6px);color:#fff;padding:7px 12px;border-radius:999px;font-weight:800;font-size:.85rem}
+  .live:before{content:"";width:8px;height:8px;border-radius:50%;background:#ef4444;animation:pulse 1.4s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  .hint{position:absolute;left:0;right:0;bottom:0;padding:24px 12px 10px;text-align:center;color:#e6efff;font-size:.78rem;font-weight:700;background:linear-gradient(transparent,rgba(5,15,30,.65))}
+  .placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#c9dbf5;text-align:center;padding:30px;gap:12px;font-weight:700;font-size:.92rem;line-height:1.4}
+  .placeholder .ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18)}
+  .placeholder .ring svg.i{width:30px;height:30px;color:#fff}
+  .placeholder b{color:#fff}
+
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .b{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:800;font-size:.98rem;cursor:pointer;transition:transform .1s,box-shadow .2s}
+  .b:active{transform:scale(.97)}
+  .b.pri{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 6px 16px rgba(29,100,216,.32)}
+  .b.sec{background:var(--sky);color:var(--blue)}
+  .b.ghost{background:#fff;color:var(--ink);border:2px solid var(--line)}
+  .b.danger{background:#fdecea;color:var(--red)}
+  .b.big{flex:1;font-size:1.08rem;padding:16px;border-radius:16px}
+  .row .b.sec{flex:1;white-space:nowrap;padding:12px 10px;font-size:.93rem}
+  .tab{white-space:nowrap}
+  .ai{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--muted);margin-top:12px;font-weight:700;background:#f6f8fc;border-radius:12px;padding:9px 12px}
+  .dot{width:9px;height:9px;border-radius:50%;background:#c3cede;flex:none;box-shadow:0 0 0 4px rgba(195,206,222,.3)}
+  .dot.ok{background:var(--c1);box-shadow:0 0 0 4px rgba(22,163,74,.15)} .dot.wait{background:var(--gold);box-shadow:0 0 0 4px rgba(232,163,23,.18)}
+
+  /* classes (train) */
+  .classes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cls{border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;border:2px solid transparent}
+  .cls .top{display:flex;align-items:center;justify-content:space-between}
+  .cls .nm{font-weight:900;font-size:1.12rem;letter-spacing:.5px}
+  .cls .ct{font-size:.75rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#fff}
+  .cls .ds{font-size:.75rem;color:#475569;line-height:1.3;font-weight:600;min-height:2.6em}
+  .cls button{display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;padding:10px;font:inherit;font-weight:800;color:#fff;cursor:pointer;font-size:.9rem}
+  .cls button svg.i{width:18px;height:18px}
+  .thumbs{display:flex;gap:4px;flex-wrap:wrap;min-height:2px}
+  .thumbs img{width:26px;height:26px;border-radius:7px;object-fit:cover;border:2px solid #fff}
+  .bg0{background:var(--c0)} .bg1{background:var(--c1)} .bg2{background:var(--c2)} .bg3{background:var(--c3)}
+  .lt0{background:var(--c0l)} .lt1{background:var(--c1l)} .lt2{background:var(--c2l)} .lt3{background:var(--c3l)}
+  .tx0{color:var(--c0)} .tx1{color:var(--c1)} .tx2{color:var(--c2)} .tx3{color:var(--c3)}
+
+  /* result */
+  .result{display:flex;align-items:center;gap:14px}
+  .badge{display:flex;flex-direction:column;justify-content:center;font-size:1.65rem;font-weight:900;padding:12px 14px;border-radius:16px;color:#fff;min-width:128px;text-align:center;letter-spacing:.5px}
+  .badge small{display:block;font-size:.68rem;font-weight:700;opacity:.92;letter-spacing:0;line-height:1.25;margin-top:3px}
+  .bars{flex:1;display:flex;flex-direction:column;gap:6px;font-size:.76rem;font-weight:800;color:#475569}
+  .bar{display:flex;align-items:center;gap:8px}
+  .bar span{width:46px}
+  .bar em{width:32px;text-align:right;font-style:normal}
+  .bar i{display:block;height:8px;border-radius:5px;background:#edf1f7;flex:1;position:relative;overflow:hidden}
+  .bar i b{position:absolute;inset:0 auto 0 0;border-radius:5px;transition:width .5s}
+  .msg{font-weight:700;font-size:.9rem;display:flex;gap:8px;align-items:flex-start;line-height:1.35}
+  .msg:empty{display:none}
+  .msg svg.i{width:18px;height:18px;margin-top:1px}
+  .msg.warn{color:#9a5b00;background:var(--gold-l);padding:10px 12px;border-radius:12px;margin-top:10px}
+  .msg.good{color:#11733a;background:var(--c1l);padding:10px 12px;border-radius:12px;margin-top:10px}
+  .msg.bad{color:#a8271c;background:#fdecea;padding:10px 12px;border-radius:12px;margin-top:10px}
+  .msg.info{color:var(--ink);background:#f6f8fc;padding:12px;border-radius:12px;margin-top:10px;display:block;font-weight:600}
+
+  /* task */
+  .task-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;color:#fff;font-weight:800;font-size:.85rem}
+  .chip svg.i{width:16px;height:16px}
+  .score{display:flex;align-items:center;gap:6px;font-weight:900;font-size:1.05rem;color:#8a5a00;background:var(--gold-l);padding:6px 12px;border-radius:999px}
+  .score svg.i{width:18px;height:18px;color:var(--gold)}
+  .q{font-size:1.35rem;font-weight:900;margin:14px 0 4px;line-height:1.25}
+  .qs{font-size:.86rem;color:var(--muted);margin-bottom:14px;font-weight:600}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opts.words{display:flex;flex-wrap:wrap}
+  .opt{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px;font:inherit;font-size:1.05rem;font-weight:800;cursor:pointer;color:var(--ink);text-align:left;transition:all .15s}
+  .opt .l{flex:none;width:28px;height:28px;border-radius:9px;background:#f1f5fb;color:#5b6b85;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900}
+  .opts.words .opt{padding:12px 16px}
+  .opt.ok{background:var(--c1l);border-color:var(--c1)} .opt.ok .l{background:var(--c1);color:#fff}
+  .opt.no{background:#fdecea;border-color:var(--red)} .opt.no .l{background:var(--red);color:#fff}
+
+  .map{display:flex;flex-direction:column;gap:8px}
+  .map .it{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px}
+  .map .ico{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}
+  .map .ico svg.i{width:20px;height:20px}
+  .map .t1{font-weight:900;font-size:.95rem}
+  .map .t2{font-size:.78rem;color:#475569;font-weight:600}
+  .map .pts{margin-left:auto;text-align:right;font-weight:900;font-size:.85rem;white-space:nowrap}
+
+  .note{font-size:.9rem;color:#475569;line-height:1.55;font-weight:600}
+  .note b{color:var(--ink)}
+  .sect{margin-top:18px}
+  .sect:first-child{margin-top:0}
+  .flow{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px}
+  .flow div{display:flex;gap:10px;align-items:flex-start}
+  .flow .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:900;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+  .quote{border-left:4px solid var(--gold);background:var(--gold-l);padding:10px 12px;border-radius:0 12px 12px 0;color:#6b4800;font-weight:700}
+  textarea{width:100%;min-height:90px;border-radius:12px;border:2px solid var(--line);padding:10px;font-family:ui-monospace,monospace;font-size:.72rem;margin-top:10px}
+  .hidden{display:none!important}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(10px);background:#132442;color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;font-size:.9rem;opacity:0;transition:all .25s;pointer-events:none;z-index:9;max-width:90%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  input[type=file]{display:none}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin:18px 0 4px;line-height:1.6;font-weight:600}
+  footer b{color:var(--ink)}
+  footer .sep{display:block;width:60px;height:3px;border-radius:3px;margin:0 auto 10px;background:linear-gradient(90deg,var(--blue),var(--gold))}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="orn" viewBox="0 0 100 100">
+      <g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round">
+        <path d="M50 50 C50 30 30 22 22 34 C16 43 26 52 33 45"/>
+        <path d="M50 50 C50 30 70 22 78 34 C84 43 74 52 67 45"/>
+        <path d="M50 50 C50 70 30 78 22 66 C16 57 26 48 33 55"/>
+        <path d="M50 50 C50 70 70 78 78 66 C84 57 74 48 67 55"/>
+        <circle cx="50" cy="50" r="6"/>
+        <circle cx="50" cy="50" r="46" stroke-width="3"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="hero">
+  <svg class="orn"><use href="#orn"/></svg>
+  <svg class="orn2"><use href="#orn"/></svg>
+  <div class="hero-in">
+    <svg class="robot" viewBox="0 0 80 80" aria-hidden="true">
+      <circle cx="40" cy="8" r="4" fill="#e8a317"/><rect x="38.5" y="10" width="3" height="8" fill="#cfe0ff"/>
+      <rect x="10" y="18" width="60" height="46" rx="20" fill="#fff"/>
+      <rect x="18" y="26" width="44" height="30" rx="13" fill="#0b2a5b"/>
+      <path d="M27 40q4-6 8 0M45 40q4-6 8 0" stroke="#5fd0ff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M33 47q7 5 14 0" stroke="#5fd0ff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <rect x="4" y="34" width="6" height="16" rx="3" fill="#cfe0ff"/><rect x="70" y="34" width="6" height="16" rx="3" fill="#cfe0ff"/>
+      <rect x="27" y="66" width="26" height="10" rx="5" fill="#e8a317"/><text x="40" y="74" font-size="8" text-anchor="middle" fill="#0b2a5b" font-weight="900" font-family="Nunito,sans-serif">AI</text>
+    </svg>
+    <div>
+      <div class="kicker">Ғылыми жоба · 3-сынып</div>
+      <h1><span>AI</span>-АСЫҚ РОБОТ</h1>
+      <p class="sub">Асықтың түсу қалпын танып, нәтижесіне қарай тапсырма таңдайтын ұлттық интеллектуалды ойын</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab on" data-tab="play"><span data-ic="play"></span>Ойнау</button>
+  <button class="tab" data-tab="train"><span data-ic="brain"></span>Үйрету</button>
+  <button class="tab" data-tab="info"><span data-ic="info"></span>Жоба</button>
+</nav>
+
+<div class="steps" id="steps">
+  <div class="st on"><div class="n">1</div>Асықты<br>лақтыру</div>
+  <div class="st"><div class="n">2</div>Суретке<br>түсіру</div>
+  <div class="st"><div class="n">3</div>Қалпын<br>тану</div>
+  <div class="st"><div class="n">4</div>Тапсырма<br>таңдау</div>
+</div>
+
+<div class="card" id="camCard">
+  <div class="stage">
+    <video id="video" playsinline muted autoplay class="hidden"></video>
+    <canvas id="view" class="view hidden"></canvas>
+    <div class="corners"><i></i><i></i><i></i><i></i></div>
+    <div class="live hidden" id="live">…</div>
+    <div class="placeholder" id="ph">
+      <div class="ring" data-ic="camera"></div>
+      <div id="phText">Асықты ойын алаңына лақтырыңыз да, камераны қосыңыз немесе суретке түсіріңіз</div>
+    </div>
+    <div class="hint">Асық жақтаудың ортасында, бір түсті бетте жатсын</div>
+  </div>
+  <div class="row">
+    <button class="b sec" id="btnCam"><span data-ic="video"></span><span class="lbl">Камераны қосу</span></button>
+    <button class="b sec" id="btnPhoto"><span data-ic="camera"></span>Суретке түсіру</button>
+    <input type="file" id="filePhoto" accept="image/*" capture="environment">
+  </div>
+  <div class="ai"><span class="dot wait" id="aiDot"></span><span id="aiText">Жасанды интеллект (MobileNet нейрондық желісі) жүктелуде…</span></div>
+</div>
+
+<section id="tab-play">
+  <div class="card">
+    <div class="row" style="margin-top:0"><button class="b pri big" id="btnRecognize"><span data-ic="scan"></span>Асықтың қалпын тану</button></div>
+    <div class="msg" id="playMsg"></div>
+    <div id="resultBox" class="hidden" style="margin-top:14px">
+      <div class="result">
+        <div class="badge" id="resBadge">—</div>
+        <div class="bars" id="resBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="taskCard">
+    <div class="task-top">
+      <span class="chip" id="taskCat">—</span>
+      <div class="score"><span data-ic="trophy"></span><span id="score">0</span></div>
+    </div>
+    <div class="q" id="taskQ"></div>
+    <div class="qs" id="taskQs"></div>
+    <div class="opts" id="taskOpts"></div>
+    <div class="msg" id="taskMsg"></div>
+    <div class="row hidden" id="nextRow"><button class="b ghost big" id="btnNext"><span data-ic="refresh"></span>Асықты қайта лақтыру</button></div>
+  </div>
+
+  <div class="card">
+    <div class="h"><span data-ic="grid"></span>Асық қалпы және тапсырма</div>
+    <div class="map" id="mapList"></div>
+    <div class="row"><button class="b ghost" id="btnReset"><span data-ic="refresh"></span>Ұпайды нөлдеу</button></div>
+  </div>
+</section>
+
+<section id="tab-train" class="hidden">
+  <div class="card">
+    <div class="h"><span data-ic="brain"></span>Роботты үйрету</div>
+    <p class="note" style="margin-top:0">Асықты әр қалыпқа қойып, сәйкес түймені басыңыз. Әр қалыпқа <b>8–10 үлгі</b> жинаңыз, асықты әр жолы сәл бұрып, жылжытып қойыңыз.</p>
+    <div class="classes" id="classes"></div>
+    <div class="msg" id="trainMsg"></div>
+  </div>
+  <div class="card">
+    <div class="h"><span data-ic="chart"></span>Тәжірибе: робот қаншалықты дұрыс таниды?</div>
+    <p class="note" style="margin-top:0">Әр үлгіні қалған үлгілермен салыстырып тексереді. Шыққан пайызды жобаның «Нәтижелер» бөліміне жазыңыз.</p>
+    <div class="row" style="margin-top:0"><button class="b sec" id="btnEval"><span data-ic="chart"></span>Дәлдікті есептеу</button></div>
+    <div class="msg" id="evalMsg"></div>
+  </div>
+  <div class="card">
+    <div class="h"><span data-ic="save"></span>Модельді сақтау және көшіру</div>
+    <p class="note" style="margin-top:0">Үлгілер осы телефонда өзі сақталады. Басқа құрылғыға көшіру үшін «Көшіру» түймесін басып, мәтінді сол құрылғыда «Жүктеу» арқылы қойыңыз.</p>
+    <div class="row" style="margin-top:0">
+      <button class="b sec" id="btnExport"><span data-ic="copy"></span>Көшіру</button>
+      <button class="b sec" id="btnImport"><span data-ic="upload"></span>Жүктеу</button>
+      <button class="b danger" id="btnClear"><span data-ic="trash"></span><span class="lbl">Өшіру</span></button>
+    </div>
+    <textarea id="modelText" class="hidden" placeholder="Модель мәтінін осында қойыңыз…"></textarea>
+    <div class="row hidden" id="importRow"><button class="b pri" id="btnImportGo"><span data-ic="check"></span>Модельді қолдану</button></div>
+  </div>
+</section>
+
+<section id="tab-info" class="hidden">
+  <div class="card note">
+    <div class="sect">
+      <div class="h"><span data-ic="target"></span>Жобаның мақсаты</div>
+      Асықтың түсу қалпын танып, нәтижесіне қарай тапсырма таңдайтын AI ойын прототипін жасау.
+    </div>
+    <div class="sect">
+      <div class="h"><span data-ic="help"></span>Зерттеу сұрағы</div>
+      <div class="quote">Жасанды интеллект ұлттық асық ойынын қызықты әрі танымдық ойынға айналдыра ала ма?</div>
+    </div>
+    <div class="sect">
+      <div class="h"><span data-ic="grid"></span>Асықтың төрт түсу қалпы</div>
+      <div class="map" id="infoMap"></div>
+    </div>
+    <div class="sect">
+      <div class="h"><span data-ic="cpu"></span>Робот қалай жұмыс істейді?</div>
+      <div class="flow">
+        <div><span class="n">1</span><span><b>Асықты лақтыру.</b> Оқушы асықты ойын алаңына тастайды.</span></div>
+        <div><span class="n">2</span><span><b>Суретке түсіру.</b> Камера асықтың көрінісін алады.</span></div>
+        <div><span class="n">3</span><span><b>Қалпын тану.</b> AI жүйесі асықтың қай қалыпта жатқанын анықтайды.</span></div>
+        <div><span class="n">4</span><span><b>Тапсырма таңдау.</b> Экранда сәйкес пәндік тапсырма көрсетіледі. Дұрыс жауапқа ұпай беріледі.</span></div>
+      </div>
+    </div>
+    <div class="sect">
+      <div class="h"><span data-ic="brain"></span>Жасанды интеллект қалай таниды?</div>
+      Робот <b>MobileNet</b> деп аталатын нейрондық желіні қолданады. Бұл желі миллиондаған суреттен заттарды көруді алдын ала үйренген. Біз оған асықтың 4 қалпын <b>мысалдар арқылы үйретеміз</b>. Жаңа суретті көргенде робот оны үйренген мысалдарымен салыстырып, ең ұқсасын таңдайды. Бұл әдіс «трансферлік оқыту» және «k жақын көрші» (k-NN) деп аталады.<br><br>
+      Желі жүктелмесе, робот жеңіл режимге көшеді: асықтың пішіні мен бетінің бедерін салыстырып таниды.
+    </div>
+    <div class="sect">
+      <div class="h"><span data-ic="spark"></span>Кеңес</div>
+      Робот қателессе, сол қалыпқа тағы бірнеше үлгі қосыңыз. Мысал көбейген сайын ол жақсырақ таниды.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="sep"></span>
+  Орындаған: <b>Есентай Амина</b><br>Жетекшісі: <b>Алипбаева Жанна Сатыбалдықызы</b><br>2026 жыл
+</footer>
+
+<canvas id="work" width="160" height="160" class="hidden"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== Icons (stroke, 24×24) ===== */
+var IC={
+  play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',
+  brain:'<path d="M9 4a3 3 0 0 0-3 3v.2A3 3 0 0 0 4 10a3 3 0 0 0 1 2.2A3 3 0 0 0 6 17a3 3 0 0 0 3 3 3 3 0 0 0 3-1V5a3 3 0 0 0-3-1z"/><path d="M15 4a3 3 0 0 1 3 3v.2A3 3 0 0 1 20 10a3 3 0 0 1-1 2.2A3 3 0 0 1 18 17a3 3 0 0 1-3 3 3 3 0 0 1-3-1"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  camera:'<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
+  video:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
+  scan:'<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M9 17h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  chart:'<path d="M4 20h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="11" y="7" width="3" height="10" rx="1"/><rect x="16" y="13" width="3" height="4" rx="1"/>',
+  save:'<path d="M5 4h11l3 3v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  upload:'<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  alert:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/>',
+  cpu:'<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/>',
+  spark:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+  math:'<path d="M5 7h5M7.5 4.5v5M14 7h5M5 16.5l4 4M9 16.5l-4 4M14 16h5M14 20h5"/>',
+  logic:'<path d="M9 4h6v3a2 2 0 1 0 0 4v0h3v9H6v-9h3a2 2 0 1 0 0-4z"/>',
+  book:'<path d="M4 5a1 1 0 0 1 1-1h5a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5a1 1 0 0 1-1-1zM20 5a1 1 0 0 0-1-1h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5a1 1 0 0 0 1-1z"/>',
+  yurt:'<path d="M3 20h18M5 20v-7M19 20v-7M3.5 13.5L12 6l8.5 7.5"/><path d="M10 20v-4a2 2 0 0 1 4 0v4M10.5 6.5a1.5 1.5 0 0 1 3 0"/>'
+};
+function ic(n){return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+(IC[n]||"")+'</svg>';}
+document.querySelectorAll("[data-ic]").forEach(function(el){el.insertAdjacentHTML("afterbegin",ic(el.dataset.ic));});
+
+/* ===== Asyk positions (presentation, slide 4) and subjects (slide 6) ===== */
+var CLASSES=[
+  {name:"АЛШЫ", desc:"Асықтың ең сәтті түсу қалпы",    cat:"Математика",   icon:"math",  pts:15},
+  {name:"ТӘЙКЕ",desc:"Асықтың қырынан түсу қалпы",     cat:"Логика",       icon:"logic", pts:10},
+  {name:"БҮК",  desc:"Асықтың ойық жағы төмен түсуі",  cat:"Қазақ тілі",   icon:"book",  pts:10},
+  {name:"ШІК",  desc:"Асықтың дөңес жағы төмен түсуі", cat:"Ұлттық таным", icon:"yurt",  pts:10}
+];
+function say(id,kind,html){var el=$(id);el.className="msg"+(kind?" "+kind:"");el.innerHTML=html?((kind==="info"?"":ic(kind==="good"?"check":kind==="bad"?"x":"alert"))+"<span>"+html+"</span>"):"";}
+
+/* ===== Helpers ===== */
+function $(id){return document.getElementById(id);}
+var toastT=null;
+function toast(t){var el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove("on");},2400);}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function numOpts(ans){var s={};s[ans]=1;var o=[ans];var d=[1,2,10,-1,-2,-10,3,5];while(o.length<4){var v=ans+pick(d);if(v>=0&&!s[v]){s[v]=1;o.push(v);}}return o.map(String);}
+
+/* ===== Task generators (slide 6) ===== */
+// МАТЕМАТИКА: "7 + 8 = ?" — есеп
+function taskMath(){
+  var t=rnd(0,3),a,b,q,ans;
+  if(t===0){a=rnd(6,59);b=rnd(5,40);q=a+" + "+b+" = ?";ans=a+b;}
+  else if(t===1){a=rnd(30,99);b=rnd(5,a-5);q=a+" − "+b+" = ?";ans=a-b;}
+  else if(t===2){a=rnd(2,9);b=rnd(2,9);q=a+" × "+b+" = ?";ans=a*b;}
+  else{b=rnd(2,9);ans=rnd(2,9);a=b*ans;q=a+" : "+b+" = ?";}
+  return {q:q,sub:"Есепті ауызша шығарып, дұрыс жауапты таңда.",opts:numOpts(ans),ans:String(ans)};
+}
+// ЛОГИКА: "3, 6, 9, __. Келесі санды тап."
+var RIDDLES=[
+  {q:"Артығы қайсы?",a:["сәбіз","алма","алмұрт","өрік"]},
+  {q:"Бүгін сейсенбі. Ертеңнен кейін қай күн болады?",a:["бейсенбі","сәрсенбі","жұма","дүйсенбі"]},
+  {q:"Асан Бекеттен ұзын, Бекет Сериктен ұзын. Ең ұзыны кім?",a:["Асан","Бекет","Серік","Бәрі тең"]},
+  {q:"Ағашта 5 құс отырды, 2-еуі ұшып кетті. Неше құс қалды?",a:["3","7","2","5"]},
+  {q:"Артығы қайсы?",a:["доп","үшбұрыш","шаршы","тіктөртбұрыш"]}
+];
+function taskLogic(){
+  if(Math.random()<0.7){
+    var step=rnd(2,9),start=rnd(1,12),kind=rnd(0,2),seq=[],i;
+    if(kind<2){for(i=0;i<4;i++)seq.push(start+step*i);}
+    else{start=rnd(60,99);step=rnd(2,7);for(i=0;i<4;i++)seq.push(start-step*i);}
+    var next=kind<2?start+step*4:start-step*4;
+    return {q:seq.join(", ")+", __",sub:"Заңдылықты тауып, келесі санды тап.",opts:numOpts(next),ans:String(next)};
+  }
+  var r=pick(RIDDLES);return {q:r.q,sub:"Ойлан да, дұрыс жауапты таңда.",opts:shuffle(r.a),ans:r.a[0]};
+}
+// ҚАЗАҚ ТІЛІ: "Сөйлемнен зат есімді тап немесе сөзді буынға бөл."
+var SENT=[
+  {s:"Әдемі гүл өсті",n:"гүл"},{s:"Кішкентай мысық ұйықтады",n:"мысық"},{s:"Ақ қар жауды",n:"қар"},
+  {s:"Жүйрік ат шапты",n:"ат"},{s:"Биік үй салынды",n:"үй"},{s:"Мен қызық кітап оқыдым",n:"кітап"},
+  {s:"Сары күз келді",n:"күз"},{s:"Балалар көңілді ойнады",n:"Балалар"},{s:"Ол маған асық берді",n:"асық"}
+];
+var SYL=[["мек","теп"],["ба","ла","лар"],["а","сық"],["қа","лам"],["дәп","тер"],["кі","тап"],["дом","бы","ра"],["ал","ма"],["са","ғат"],["бақ","ша"]];
+function wrongSplits(parts){
+  var w=parts.join(""),cuts=[],p=0,i,res={},right=parts.join("-");
+  for(i=0;i<parts.length-1;i++){p+=parts[i].length;cuts.push(p);}
+  function make(cs){var out=[],last=0;cs.forEach(function(c){out.push(w.slice(last,c));last=c;});out.push(w.slice(last));return out.join("-");}
+  for(i=0;i<cuts.length;i++){[-1,1].forEach(function(dl){var cs=cuts.slice();cs[i]+=dl;if(cs[i]>0&&cs[i]<w.length&&(i===0||cs[i]>cs[i-1])&&(i===cs.length-1||cs[i]<cs[i+1])){var m=make(cs);if(m!==right)res[m]=1;}});}
+  if(cuts.length>1)res[make([cuts[0]])]=1; // too few syllables
+  else if(w.length>3){var m2=make([1,cuts[0]+ (cuts[0]+1<w.length?1:0)]);if(m2!==right)res[m2]=1;}
+  return Object.keys(res).filter(function(x){return x!==right;});
+}
+function taskKaz(){
+  if(Math.random()<0.5){
+    var s=pick(SENT);var words=s.s.split(" ");
+    return {q:"«"+s.s+".»",sub:"Сөйлемнен зат есімді тап. (Кім? Не? деген сұраққа жауап береді)",opts:words,ans:s.n,words:true};
+  }
+  var parts=pick(SYL),right=parts.join("-"),wr=shuffle(wrongSplits(parts)).slice(0,3);
+  return {q:"«"+parts.join("")+"» сөзін буынға бөл",sub:"Дұрыс бөлінген нұсқаны таңда.",opts:shuffle([right].concat(wr)),ans:right};
+}
+// ҰЛТТЫҚ ТАНЫМ: "Асық ойынының ережесін айт. Ұлттық ойындардың атауын ата."
+var NAT=[
+  {q:"Асық неше түрлі қалыппен түседі?",a:["4","2","3","6"]},
+  {q:"Асықтың ең сәтті түсу қалпы қалай аталады?",a:["алшы","тәйке","бүк","шік"]},
+  {q:"Асықтың қырынан түсу қалпы қалай аталады?",a:["тәйке","алшы","шік","бүк"]},
+  {q:"Асық ойынында асықты ататын ірі асық қалай аталады?",a:["сақа","шік","бүк","тәйке"]},
+  {q:"Асық ойыны баланы неге баулиды?",a:["ептілік пен дәлдікке","ұйқышылдыққа","жалқаулыққа","ашуланшақтыққа"]},
+  {q:"Қайсысы — қазақтың ұлттық ойыны?",a:["Көкпар","Футбол","Шахмат","Теннис"]},
+  {q:"Қайсысы — қазақтың ұлттық ойыны?",a:["Тоғызқұмалақ","Баскетбол","Дойбы","Хоккей"]},
+  {q:"Қайсысы — қазақтың ұлттық ойыны?",a:["Қыз қуу","Волейбол","Гольф","Бокс"]},
+  {q:"Алтыбақан дегеніміз не?",a:["ұлттық әткеншек","тағам","музыкалық аспап","киім"]},
+  {q:"«Хан талапай» ойыны немен ойналады?",a:["асықпен","доппен","атпен","таспен"]},
+  {q:"Асық көбіне қай малдың сүйегінен алынады?",a:["қой","жылқы","түйе","сиыр"]}
+];
+var natLast=-1;
+function taskNat(){var i;do{i=rnd(0,NAT.length-1);}while(i===natLast);natLast=i;var r=NAT[i];return {q:r.q,sub:"Ұлттық танымыңды тексер.",opts:shuffle(r.a),ans:r.a[0]};}
+var GEN=[taskMath,taskLogic,taskKaz,taskNat];
+
+
+
+/* ===== Tabs & steps ===== */
+var tabs=document.querySelectorAll(".tab");
+tabs.forEach(function(t){t.addEventListener("click",function(){
+  tabs.forEach(function(x){x.classList.toggle("on",x===t);});
+  ["play","train","info"].forEach(function(n){$("tab-"+n).classList.toggle("hidden",n!==t.dataset.tab);});
+  $("camCard").classList.toggle("hidden",t.dataset.tab==="info");
+  $("steps").classList.toggle("hidden",t.dataset.tab!=="play");
+});});
+function setStep(n){document.querySelectorAll(".st").forEach(function(el,i){el.classList.toggle("on",i===n-1);el.classList.toggle("done",i<n-1);var d=el.querySelector(".n");d.innerHTML=i<n-1?ic("check"):String(i+1);});}
+
+/* ===== Camera / photo ===== */
+var video=$("video"),view=$("view"),work=$("work");
+var wctx=work.getContext("2d",{willReadFrequently:true});
+var mode=null,pendingAfterPhoto=null;
+function showSource(m){mode=m;$("ph").classList.add("hidden");video.classList.toggle("hidden",m!=="video");view.classList.toggle("hidden",m!=="photo");$("live").classList.toggle("hidden",m!=="video");}
+$("btnCam").addEventListener("click",function(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camFail();return;}
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:720},height:{ideal:720}},audio:false})
+   .then(function(s){video.srcObject=s;return video.play();})
+   .then(function(){showSource("video");$("btnCam").querySelector(".lbl").textContent="Камера қосулы";setStep(2);startLive();})
+   .catch(camFail);
+});
+function camFail(){$("phText").innerHTML="Тікелей камера ашылмады.<br><b>«Суретке түсіру»</b> түймесін басыңыз, телефон камерасы ашылады.";toast("«Суретке түсіру» түймесін қолданыңыз");}
+$("btnPhoto").addEventListener("click",function(){$("filePhoto").click();});
+$("filePhoto").addEventListener("change",function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;
+  var img=new Image();
+  img.onload=function(){
+    var s=Math.min(img.naturalWidth,img.naturalHeight);view.width=view.height=Math.min(s,800);
+    view.getContext("2d").drawImage(img,(img.naturalWidth-s)/2,(img.naturalHeight-s)/2,s,s,0,0,view.width,view.height);
+    showSource("photo");setStep(2);e.target.value="";
+    if(pendingAfterPhoto){var fn=pendingAfterPhoto;pendingAfterPhoto=null;fn();}
+  };
+  img.src=URL.createObjectURL(f);
+});
+function needSource(after){if(mode)return true;pendingAfterPhoto=after;$("filePhoto").click();return false;}
+function grab(){
+  var src,sw,sh;
+  if(mode==="video"){src=video;sw=video.videoWidth;sh=video.videoHeight;if(!sw)return false;}
+  else if(mode==="photo"){src=view;sw=view.width;sh=view.height;} else return false;
+  var s=Math.min(sw,sh),crop=s*0.72;
+  wctx.drawImage(src,(sw-crop)/2,(sh-crop)/2,crop,crop,0,0,160,160);
+  return true;
+}
+
+/* ===== Classic features (shape + texture), also used to locate the asyk ===== */
+var N=160;
+function largestBlob(m){
+  var lab=new Int32Array(N*N),best=0,bestLab=0,cur=0,stack=[];
+  for(var s=0;s<N*N;s++){
+    if(!m[s]||lab[s])continue;cur++;var cnt=0;stack.push(s);lab[s]=cur;
+    while(stack.length){var p=stack.pop();cnt++;var x=p%N,y=(p/N)|0;
+      if(x>0&&m[p-1]&&!lab[p-1]){lab[p-1]=cur;stack.push(p-1);}
+      if(x<N-1&&m[p+1]&&!lab[p+1]){lab[p+1]=cur;stack.push(p+1);}
+      if(y>0&&m[p-N]&&!lab[p-N]){lab[p-N]=cur;stack.push(p-N);}
+      if(y<N-1&&m[p+N]&&!lab[p+N]){lab[p+N]=cur;stack.push(p+N);}}
+    if(cnt>best){best=cnt;bestLab=cur;}
+  }
+  var o=new Uint8Array(N*N);if(!bestLab)return o;for(s=0;s<N*N;s++)o[s]=lab[s]===bestLab?1:0;return o;
+}
+function norm(a,w){var s=0,t;for(t=0;t<a.length;t++)s+=a[t]*a[t];s=Math.sqrt(s)||1;var o=[];for(t=0;t<a.length;t++)o.push(a[t]/s*w);return o;}
+function extract(){
+  var d=wctx.getImageData(0,0,N,N).data,i,p,x,y,j;
+  var R=new Float32Array(N*N),G=new Float32Array(N*N),B=new Float32Array(N*N),Y=new Float32Array(N*N);
+  for(i=0,p=0;i<N*N;i++,p+=4){R[i]=d[p];G[i]=d[p+1];B[i]=d[p+2];Y[i]=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];}
+  var br=[],bg=[],bb=[];
+  for(var k=0;k<N;k++){[k,(N-1)*N+k,k*N,k*N+N-1].forEach(function(ix){br.push(R[ix]);bg.push(G[ix]);bb.push(B[ix]);});}
+  function med(a){a.sort(function(u,v){return u-v;});return a[a.length>>1];}
+  var mr=med(br),mg=med(bg),mb=med(bb),hist=new Uint32Array(256),diff=new Float32Array(N*N);
+  for(i=0;i<N*N;i++){var dv=Math.sqrt((R[i]-mr)*(R[i]-mr)+(G[i]-mg)*(G[i]-mg)+(B[i]-mb)*(B[i]-mb));diff[i]=dv;hist[Math.min(255,dv|0)]++;}
+  var tot=N*N,sum=0;for(i=0;i<256;i++)sum+=i*hist[i];
+  var sB=0,wB=0,best=0,th=30;
+  for(i=0;i<256;i++){wB+=hist[i];if(!wB)continue;var wF=tot-wB;if(!wF)break;sB+=i*hist[i];var mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>best){best=v;th=i;}}
+  th=Math.max(th,18);
+  var mask=new Uint8Array(N*N),m2=new Uint8Array(N*N);
+  for(i=0;i<N*N;i++)mask[i]=diff[i]>th?1:0;
+  for(y=1;y<N-1;y++)for(x=1;x<N-1;x++){j=y*N+x;if(mask[j])m2[j]=(mask[j-1]+mask[j+1]+mask[j-N]+mask[j+N])>=2?1:0;}
+  mask=largestBlob(m2);
+  var area=0,sx=0,sy=0;
+  for(y=0;y<N;y++)for(x=0;x<N;x++)if(mask[y*N+x]){area++;sx+=x;sy+=y;}
+  if(area<N*N*0.02||area>N*N*0.85)return null;
+  var cx=sx/area,cy=sy/area,cxx=0,cyy=0,cxy=0;
+  for(y=0;y<N;y++)for(x=0;x<N;x++)if(mask[y*N+x]){var dx=x-cx,dy=y-cy;cxx+=dx*dx;cyy+=dy*dy;cxy+=dx*dy;}
+  cxx/=area;cyy/=area;cxy/=area;
+  var tr=cxx+cyy,det=cxx*cyy-cxy*cxy,disc=Math.sqrt(Math.max(0,tr*tr/4-det));
+  var l1=tr/2+disc,l2=Math.max(1e-6,tr/2-disc),ang=0.5*Math.atan2(2*cxy,cxx-cyy);
+  var elong=Math.sqrt(l2/l1),fill=area/(4*Math.PI*Math.sqrt(l1*l2));
+  var per=0;for(y=1;y<N-1;y++)for(x=1;x<N-1;x++){j=y*N+x;if(mask[j]&&(!mask[j-1]||!mask[j+1]||!mask[j-N]||!mask[j+N]))per++;}
+  var compact=4*Math.PI*area/Math.max(1,per*per);
+  var mu=0;for(i=0;i<N*N;i++)if(mask[i])mu+=Y[i];mu/=area;
+  var sd=0;for(i=0;i<N*N;i++)if(mask[i])sd+=(Y[i]-mu)*(Y[i]-mu);sd=Math.sqrt(sd/area)+1e-3;
+  var ih=new Float32Array(8),gh=new Float32Array(8),lbp=new Float32Array(10);
+  for(i=0;i<N*N;i++)if(mask[i]){var z=(Y[i]-mu)/sd;ih[Math.max(0,Math.min(7,Math.floor((z+2)*2)))]++;}
+  for(y=1;y<N-1;y++)for(x=1;x<N-1;x++){
+    j=y*N+x;if(!mask[j])continue;
+    var gx=Y[j+1]-Y[j-1],gy=Y[j+N]-Y[j-N];gh[Math.min(7,Math.floor(Math.sqrt(gx*gx+gy*gy)/sd*2))]++;
+    var c0=Y[j],nb=[Y[j-N-1],Y[j-N],Y[j-N+1],Y[j+1],Y[j+N+1],Y[j+N],Y[j+N-1],Y[j-1]],ones=0,trn=0,prev=nb[7]>=c0+2;
+    for(var q=0;q<8;q++){var bit=nb[q]>=c0+2;if(bit)ones++;if(bit!==prev)trn++;prev=bit;}
+    lbp[trn<=2?ones:9]++;
+  }
+  var rad=new Float32Array(5),radc=new Float32Array(5),rmax=2*Math.sqrt(l1);
+  for(y=0;y<N;y++)for(x=0;x<N;x++){j=y*N+x;if(!mask[j])continue;var ri=Math.min(4,Math.floor(Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy))/rmax*5));rad[ri]+=(Y[j]-mu)/sd;radc[ri]++;}
+  for(i=0;i<5;i++)rad[i]=radc[i]?rad[i]/radc[i]:0;
+  var T=12,thumb=new Float32Array(T*T),ca=Math.cos(ang),sa=Math.sin(ang),a1=2.2*Math.sqrt(l1),a2=2.2*Math.sqrt(l2);
+  for(var v2=0;v2<T;v2++)for(var u2=0;u2<T;u2++){
+    var uu=((u2+0.5)/T*2-1)*a1,vv=((v2+0.5)/T*2-1)*a2,px=Math.round(cx+uu*ca-vv*sa),py=Math.round(cy+uu*sa+vv*ca),val=-2.5;
+    if(px>=0&&py>=0&&px<N&&py<N){var pj=py*N+px;if(mask[pj])val=(Y[pj]-mu)/sd;}
+    thumb[v2*T+u2]=val;
+  }
+  var base=[].concat(norm([elong*2,fill,compact*1.5],1.2),norm(ih,1),norm(gh,0.8),norm(lbp,1),norm(rad,0.8));
+  var variants=[];
+  [[0,0],[1,0],[0,1],[1,1]].forEach(function(f){
+    var t2=new Float32Array(T*T);
+    for(var yy=0;yy<T;yy++)for(var xx=0;xx<T;xx++)t2[yy*T+xx]=thumb[(f[1]?T-1-yy:yy)*T+(f[0]?T-1-xx:xx)];
+    variants.push(base.concat(norm(t2,1.3)).map(function(n){return Math.round(n*1000)/1000;}));
+  });
+  return {variants:variants,cx:cx,cy:cy,r:2*Math.sqrt(l1)};
+}
+
+/* ===== Neural network: MobileNet (TensorFlow.js) ===== */
+var net=null;
+var cropC=document.createElement("canvas");cropC.width=cropC.height=224;var cropX=cropC.getContext("2d");
+function setAI(state,text){$("aiDot").className="dot "+state;$("aiText").textContent=text;}
+function loadScript(src){return new Promise(function(res,rej){var s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+function loadNet(){
+  var timeout=new Promise(function(_,rej){setTimeout(function(){rej("timeout");},45000);});
+  Promise.race([
+    loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js")
+      .then(function(){return loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js");})
+      .then(function(){return window.mobilenet.load({version:1,alpha:0.5});}),
+    timeout
+  ]).then(function(m){
+    net=m;
+    try{tf.tidy(function(){net.infer(tf.zeros([224,224,3]),true);});}catch(e){}
+    setAI("ok","Жасанды интеллект дайын: MobileNet нейрондық желісі");
+    backfillEmbeddings();
+  }).catch(function(){
+    net=null;setAI("wait","Жеңіл режим: робот асықтың пішіні мен бедері бойынша таниды (нейрондық желі жүктелмеді)");
+  });
+}
+// draw the asyk-centred crop, rotated by k×90°, into the 224 canvas
+function drawCrop(info,k){
+  var half=Math.max(28,Math.min(80,info.r*1.35));
+  cropX.save();cropX.fillStyle="#808080";cropX.fillRect(0,0,224,224);
+  cropX.translate(112,112);cropX.rotate(k*Math.PI/2);
+  cropX.drawImage(work,info.cx-half,info.cy-half,half*2,half*2,-112,-112,224,224);
+  cropX.restore();
+}
+function embed(info,rots){
+  if(!net)return null;
+  var out=[];
+  for(var k=0;k<rots;k++){
+    drawCrop(info,k);
+    var v=tf.tidy(function(){return net.infer(tf.browser.fromPixels(cropC),true).dataSync();});
+    var s=0,i;for(i=0;i<v.length;i++)s+=v[i]*v[i];s=Math.sqrt(s)||1;
+    var a=new Array(v.length);for(i=0;i<v.length;i++)a[i]=Math.round(v[i]/s*1000)/1000;
+    out.push(a);
+  }
+  return out;
+}
+
+/* ===== Model: k nearest neighbours over examples ===== */
+var KEY="aiasyk_model_v2";
+var model={v:2,samples:[[],[],[],[]]}; // sample: {f:[classic variants], e:[embeddings]|null, t:thumb, raw:dataURL}
+try{var sv=store(KEY);if(sv){var pm=JSON.parse(sv);if(pm&&pm.samples&&pm.samples.length===4)model=pm;}}catch(e){}
+function saveModel(){var ok=store(KEY,JSON.stringify(model));}
+function totalSamples(){return model.samples.reduce(function(s,a){return s+a.length;},0);}
+function allHaveE(){return model.samples.every(function(a){return a.every(function(s){return s.e&&s.e.length;});});}
+function backfillEmbeddings(){
+  // samples taken before the network loaded: compute their embeddings from the stored crop
+  var todo=[];model.samples.forEach(function(a){a.forEach(function(s){if(!s.e&&s.raw)todo.push(s);});});
+  if(!todo.length)return;
+  var i=0;(function next(){
+    if(i>=todo.length){saveModel();return;}
+    var s=todo[i++],img=new Image();
+    img.onload=function(){wctx.drawImage(img,0,0,160,160);var info=extract();s.e=info?embed(info,4):null;setTimeout(next,0);};
+    img.src=s.raw;
+  })();
+}
+function l2(a,b){var s=0;for(var i=0;i<a.length;i++){var d=a[i]-b[i];s+=d*d;}return Math.sqrt(s);}
+function cosd(a,b){var s=0;for(var i=0;i<a.length;i++)s+=a[i]*b[i];return 1-s;}
+function minOver(q,list,fn){var b=1e9;for(var i=0;i<list.length;i++){var d=fn(q,list[i]);if(d<b)b=d;}return b;}
+function classify(q,exclude){
+  var useE=net&&q.e&&allHaveE(),all=[];
+  model.samples.forEach(function(arr,c){arr.forEach(function(s,ix){
+    if(exclude&&exclude[0]===c&&exclude[1]===ix)return;
+    var d=minOver(q.f[0],s.f,l2)*0.5;
+    if(useE)d=d*0.4+minOver(q.e[0],s.e,cosd)*2.0;
+    all.push({c:c,d:d});
+  });});
+  if(!all.length)return null;
+  all.sort(function(a,b){return a.d-b.d;});
+  var k=Math.min(5,all.length),sc=[0,0,0,0];
+  for(var i=0;i<k;i++)sc[all[i].c]+=1/(all[i].d+0.03);
+  var tot=sc[0]+sc[1]+sc[2]+sc[3],pr=sc.map(function(s){return s/tot;});
+  return {cls:pr.indexOf(Math.max.apply(null,pr)),probs:pr,ai:useE};
+}
+function observe(){ // grab + features of the current view
+  if(!grab())return {err:"Кадр дайын емес"};
+  var info=extract();if(!info)return {err:"Асық табылмады. Асықты жақтаудың ортасына, бір түсті бетке қойыңыз."};
+  return {f:info.variants,e:embed(info,1),info:info};
+}
+
+
+
+/* ===== Train UI ===== */
+function smallURL(sz,q){var c=document.createElement("canvas");c.width=c.height=sz;c.getContext("2d").drawImage(work,0,0,sz,sz);return c.toDataURL("image/jpeg",q);}
+function renderClasses(){
+  var box=$("classes");box.innerHTML="";
+  CLASSES.forEach(function(c,i){
+    var el=document.createElement("div");el.className="cls lt"+i;
+    el.innerHTML='<div class="top"><span class="nm tx'+i+'">'+c.name+'</span><span class="ct tx'+i+'">'+model.samples[i].length+' үлгі</span></div><div class="ds">'+c.desc+'</div><div class="thumbs"></div><button class="bg'+i+'">'+ic("plus")+'Үлгі қосу</button>';
+    var th=el.querySelector(".thumbs");
+    model.samples[i].slice(-10).forEach(function(s){var im=new Image();im.src=s.t;th.appendChild(im);});
+    el.querySelector("button").addEventListener("click",function(){addSample(i);});
+    box.appendChild(el);
+  });
+}
+function addSample(i){
+  if(!needSource(function(){addSample(i);}))return;
+  if(!grab()){toast("Кадр дайын емес");return;}
+  var info=extract();
+  if(!info){say("trainMsg","warn","Асық табылмады. Асықты жақтаудың ортасына, бір түсті бетке қойыңыз.");return;}
+  model.samples[i].push({f:info.variants,e:embed(info,4),t:smallURL(48,0.6),raw:smallURL(160,0.8)});
+  saveModel();renderClasses();
+  say("trainMsg","good",CLASSES[i].name+" үлгісі қосылды. Барлығы: "+model.samples[i].length);
+  if(mode==="photo")toast("Келесі үлгі үшін асықты бұрып, қайта түсіріңіз");
+}
+$("btnEval").addEventListener("click",function(){
+  var n=0,ok=0,per=[[0,0],[0,0],[0,0],[0,0]],ai=false;
+  model.samples.forEach(function(arr,c){arr.forEach(function(s,ix){var r=classify({f:s.f,e:s.e},[c,ix]);if(!r)return;ai=r.ai;n++;per[c][1]++;if(r.cls===c){ok++;per[c][0]++;}});});
+  if(n<8){say("evalMsg","warn","Алдымен әр қалыпқа бірнеше үлгі жинаңыз.");return;}
+  say("evalMsg","info",'<div style="font-size:1.6rem;font-weight:900;color:var(--blue)">'+Math.round(ok/n*100)+'%</div>'+
+    '<div>Жалпы дәлдік: '+ok+' / '+n+' үлгі дұрыс танылды</div>'+
+    '<div style="margin-top:6px">'+CLASSES.map(function(c,i){return '<b class="tx'+i+'">'+c.name+'</b> '+(per[i][1]?Math.round(per[i][0]/per[i][1]*100)+'%':'—');}).join(' &nbsp;·&nbsp; ')+'</div>'+
+    '<div style="margin-top:6px;color:var(--muted)">Әдіс: '+(ai?'MobileNet нейрондық желісі + k-NN':'пішін мен бедер белгілері + k-NN')+'</div>');
+});
+$("btnExport").addEventListener("click",function(){
+  var txt=JSON.stringify(model);$("modelText").classList.remove("hidden");$("modelText").value=txt;$("importRow").classList.add("hidden");
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){toast("Модель көшірілді");},function(){toast("Мәтінді белгілеп, қолмен көшіріңіз");});
+});
+$("btnImport").addEventListener("click",function(){$("modelText").classList.remove("hidden");$("modelText").value="";$("importRow").classList.remove("hidden");$("modelText").focus();});
+$("btnImportGo").addEventListener("click",function(){
+  try{var m=JSON.parse($("modelText").value);if(!m.samples||m.samples.length!==4)throw 0;model=m;saveModel();renderClasses();if(net)backfillEmbeddings();toast("Модель жүктелді: "+totalSamples()+" үлгі");$("modelText").classList.add("hidden");$("importRow").classList.add("hidden");}
+  catch(e){toast("Мәтін қате. Толық көшірілгенін тексеріңіз");}
+});
+var clearArm=false;
+$("btnClear").addEventListener("click",function(){
+  var l=$("btnClear").querySelector(".lbl");
+  if(!clearArm){clearArm=true;l.textContent="Растау";setTimeout(function(){clearArm=false;l.textContent="Өшіру";},3000);return;}
+  model={v:2,samples:[[],[],[],[]]};saveModel();renderClasses();clearArm=false;l.textContent="Өшіру";toast("Үлгілер өшірілді");
+});
+
+/* ===== Live preview ===== */
+var liveTimer=null;
+function startLive(){
+  if(liveTimer)return;
+  liveTimer=setInterval(function(){
+    if(mode!=="video")return;
+    if(model.samples.some(function(a){return !a.length;})){$("live").textContent="Алдымен роботты үйретіңіз";return;}
+    var o=observe();if(o.err){$("live").textContent="Асық көрінбейді";return;}
+    var r=classify(o);$("live").textContent=CLASSES[r.cls].name+" · "+Math.round(r.probs[r.cls]*100)+"%";
+  },600);
+}
+
+/* ===== Play ===== */
+var score=parseInt(store("aiasyk_score")||"0",10)||0;$("score").textContent=score;
+CLASSES.forEach(function(c,i){
+  $("mapList").insertAdjacentHTML("beforeend",'<div class="it lt'+i+'"><span class="ico bg'+i+'">'+ic(c.icon)+'</span><div><div class="t1 tx'+i+'">'+c.name+'</div><div class="t2">'+c.cat+'</div></div><span class="pts tx'+i+'">+'+c.pts+' ұпай</span></div>');
+  $("infoMap").insertAdjacentHTML("beforeend",'<div class="it lt'+i+'"><span class="ico bg'+i+'">'+ic(c.icon)+'</span><div><div class="t1 tx'+i+'">'+c.name+'</div><div class="t2">'+c.desc+'</div></div><span class="pts tx'+i+'">'+c.cat+'</span></div>');
+});
+$("btnRecognize").addEventListener("click",recognize);
+function recognize(){
+  if(model.samples.some(function(a){return !a.length;})){
+    say("playMsg","warn","Робот әлі үйренбеген. <b>«Үйрету»</b> бетінде әр қалыпқа үлгі жинаңыз.");return;
+  }
+  if(!needSource(recognize))return;
+  var o=observe();if(o.err){say("playMsg","warn",o.err);return;}
+  setStep(3);
+  var r=classify(o),c=CLASSES[r.cls];
+  say("playMsg");$("resultBox").classList.remove("hidden");
+  var b=$("resBadge");b.innerHTML=c.name+"<small>"+c.desc+"</small>";b.className="badge bg"+r.cls;
+  $("resBars").innerHTML=CLASSES.map(function(cc,i){return '<div class="bar"><span>'+cc.name+'</span><i><b class="bg'+i+'" style="width:0"></b></i><em>'+Math.round(r.probs[i]*100)+'%</em></div>';}).join("");
+  requestAnimationFrame(function(){requestAnimationFrame(function(){$("resBars").querySelectorAll("b").forEach(function(el,i){el.style.width=Math.round(r.probs[i]*100)+"%";});});});
+  speak(c.name);
+  setTimeout(function(){giveTask(r.cls);},400);
+}
+function giveTask(ci){
+  setStep(4);
+  var c=CLASSES[ci],t=GEN[ci](),done=false,box=$("taskOpts"),L="ABCDEF";
+  $("taskCard").classList.remove("hidden");$("nextRow").classList.add("hidden");
+  var cat=$("taskCat");cat.innerHTML=ic(c.icon)+c.cat;cat.className="chip bg"+ci;
+  $("taskQ").textContent=t.q;$("taskQs").textContent=t.sub;say("taskMsg");
+  box.className="opts"+(t.words?" words":"");box.innerHTML="";
+  t.opts.forEach(function(opt,k){
+    var bt=document.createElement("button");bt.className="opt";
+    bt.innerHTML=(t.words?"":'<span class="l">'+L[k]+'</span>')+'<span class="v"></span>';bt.querySelector(".v").textContent=opt;bt.dataset.v=opt;
+    bt.addEventListener("click",function(){
+      if(done)return;done=true;
+      if(opt===t.ans){bt.classList.add("ok");score+=c.pts;say("taskMsg","good","Дұрыс! +"+c.pts+" ұпай");speak("Жарайсың!");}
+      else{bt.classList.add("no");box.querySelectorAll(".opt").forEach(function(x){if(x.dataset.v===t.ans)x.classList.add("ok");});say("taskMsg","bad","Қате. Дұрыс жауабы: <b>"+t.ans+"</b>");}
+      $("score").textContent=score;store("aiasyk_score",String(score));$("nextRow").classList.remove("hidden");
+    });
+    box.appendChild(bt);
+  });
+  $("taskCard").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("btnNext").addEventListener("click",function(){
+  setStep(mode==="video"?2:1);$("taskCard").classList.add("hidden");$("resultBox").classList.add("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(mode==="photo"){mode=null;view.classList.add("hidden");$("ph").classList.remove("hidden");$("phText").innerHTML="Асықты лақтырып, <b>«Асықтың қалпын тану»</b> түймесін басыңыз. Камера ашылады.";}
+});
+$("btnReset").addEventListener("click",function(){score=0;$("score").textContent=0;store("aiasyk_score","0");toast("Ұпай нөлденді");});
+function speak(t){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(t);u.lang="kk-KZ";u.rate=0.95;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+
+renderClasses();
+loadNet();
+window.__aiasyk={grab:grab,extract:extract,observe:observe,classify:classify,gen:GEN,model:function(){return model;},setMode:function(m){mode=m;},net:function(){return net;}};
+})();
+</script>
+</body>
+</html>
