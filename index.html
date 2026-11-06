@@ -156,15 +156,23 @@
   .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(10px);background:#132442;color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;font-size:.9rem;opacity:0;transition:all .25s;pointer-events:none;z-index:9;max-width:90%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
   .toast.on{opacity:1;transform:translateX(-50%)}
   input[type=file]{display:none}
+  .classes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cls{min-width:0}
+  .cls .acts{display:flex;flex-wrap:wrap;gap:6px}
+  .cls .acts button{padding:9px 6px;font-size:.84rem;gap:5px;white-space:nowrap}
+  .cls .acts .add{flex:1 1 100%}
+  .cls .acts .gal{flex:1 1 0;min-width:0;background:#fff}
+  .cls .acts .gal.tx0{color:var(--c0)} .cls .acts .gal.tx1{color:var(--c1)} .cls .acts .gal.tx2{color:var(--c2)} .cls .acts .gal.tx3{color:var(--c3)}
+  .cls .acts .clr{flex:none;width:40px;background:#fff;color:var(--red)}
+  #tab-train .row .b{flex:1;white-space:nowrap;font-size:.86rem;padding:11px 8px}
+  .cls .acts svg.i{width:16px;height:16px}
   .thumbs button{padding:0;border:0;background:none;cursor:pointer;border-radius:7px}
   .thumbs button img{display:block}
-  .thumbs .demo img{border-color:#ffe08a}
   .modal{position:fixed;inset:0;background:rgba(10,20,40,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:14px}
   .sheet{background:#fff;border-radius:22px;padding:16px;width:100%;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
   .sheet img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:14px;background:#eef2f8;display:block}
   .sheet .t{font-weight:900;font-size:1.05rem;margin:12px 0 2px}
   .sheet .s{font-size:.85rem;color:var(--muted);font-weight:600}
-  .demo-note{font-size:.8rem;color:#8a5a00;background:var(--gold-l);border-radius:12px;padding:8px 12px;margin-top:10px;font-weight:700}
   footer{text-align:center;font-size:.8rem;color:var(--muted);margin:18px 0 4px;line-height:1.6;font-weight:600}
   footer b{color:var(--ink)}
   footer .sep{display:block;width:60px;height:3px;border-radius:3px;margin:0 auto 10px;background:linear-gradient(90deg,var(--blue),var(--gold))}
@@ -239,8 +247,7 @@
     <input type="file" id="filePhoto" accept="image/*" capture="environment">
   </div>
   <div class="row" style="margin-top:8px">
-    <button class="b sec" id="btnGallery"><span data-ic="image"></span>Галереядан</button>
-    <button class="b sec" id="btnDemo"><span data-ic="dice"></span>Демо асық</button>
+    <button class="b sec" id="btnGallery"><span data-ic="image"></span>Галереядан сурет ашу</button>
     <input type="file" id="fileGallery" accept="image/*">
   </div>
   <div class="ai"><span class="dot wait" id="aiDot"></span><span id="aiText">Жасанды интеллект (MobileNet нейрондық желісі) жүктелуде…</span></div>
@@ -280,17 +287,11 @@
 <section id="tab-train" class="hidden">
   <div class="card">
     <div class="h"><span data-ic="brain"></span>Роботты үйрету</div>
-    <p class="note" style="margin-top:0">Асықты әр қалыпқа қойып, сәйкес түймені басыңыз. Әр қалыпқа <b>8–10 үлгі</b> жинаңыз, асықты әр жолы сәл бұрып, жылжытып қойыңыз. Қате үлгіні <b>суретін басып</b> өшіре аласыз.</p>
+    <p class="note" style="margin-top:0">Әр қалыпқа <b>8–10 үлгі</b> жинаңыз. <b>Камерамен</b> — асықты қойып суретке түсіресіз, әр басқан сайын жаңа сурет. <b>Галереядан</b> — интернеттен телефонға сақтаған нағыз асық фотоларын бірден бірнешеуін таңдап қосасыз. Қате үлгіні <b>суретін басып</b> өшіресіз, қоқыс белгісі — сол қалыпты түгел тазалайды.</p>
     <div class="classes" id="classes"></div>
+    <input type="file" id="fileSampleCam" accept="image/*" capture="environment">
+    <input type="file" id="fileSamples" accept="image/*" multiple>
     <div class="msg" id="trainMsg"></div>
-  </div>
-  <div class="card">
-    <div class="h"><span data-ic="dice"></span>Демо режим (асық жоқ кезде)</div>
-    <p class="note" style="margin-top:0">Бағдарлама асықтың 4 қалпының <b>суретін өзі салып</b>, роботты соларға үйретеді. Сосын «Ойнау» бетінде <b>«Демо асық»</b> түймесі виртуалды асық лақтырады. Нағыз асық табылғанда демо үлгілерді өшіріп, роботты қайта үйретіңіз.</p>
-    <div class="row" style="margin-top:0">
-      <button class="b sec" id="btnDemoLoad"><span data-ic="plus"></span>Демо үлгілерді қосу</button>
-      <button class="b danger" id="btnDemoClear"><span data-ic="trash"></span>Демоны өшіру</button>
-    </div>
   </div>
   <div class="card">
     <div class="h"><span data-ic="chart"></span>Тәжірибе: робот қаншалықты дұрыс таниды?</div>
@@ -513,12 +514,12 @@ function setStep(n){document.querySelectorAll(".st").forEach(function(el,i){el.c
 var video=$("video"),view=$("view"),work=$("work");
 var wctx=work.getContext("2d",{willReadFrequently:true});
 var mode=null,pendingAfterPhoto=null;
-function showSource(m){mode=m;$("ph").classList.add("hidden");video.classList.toggle("hidden",m!=="video");view.classList.toggle("hidden",m!=="photo");$("live").classList.toggle("hidden",m!=="video");}
+function showSource(m){mode=m;document.querySelector(".corners").classList.toggle("hidden",m!=="video");$("ph").classList.add("hidden");video.classList.toggle("hidden",m!=="video");view.classList.toggle("hidden",m!=="photo");$("live").classList.toggle("hidden",m!=="video");}
 $("btnCam").addEventListener("click",function(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camFail();return;}
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:720},height:{ideal:720}},audio:false})
    .then(function(s){video.srcObject=s;return video.play();})
-   .then(function(){demoTruth=null;showSource("video");$("btnCam").querySelector(".lbl").textContent="Камера қосулы";setStep(2);startLive();})
+   .then(function(){showSource("video");$("btnCam").querySelector(".lbl").textContent="Камера қосулы";setStep(2);startLive();})
    .catch(camFail);
 });
 function camFail(){$("phText").innerHTML="Тікелей камера ашылмады.<br><b>«Суретке түсіру»</b> түймесін басыңыз, телефон камерасы ашылады.";toast("«Суретке түсіру» түймесін қолданыңыз");}
@@ -529,7 +530,7 @@ function onImageFile(e){
   img.onload=function(){
     var s=Math.min(img.naturalWidth,img.naturalHeight);view.width=view.height=Math.min(s,800);
     view.getContext("2d").drawImage(img,(img.naturalWidth-s)/2,(img.naturalHeight-s)/2,s,s,0,0,view.width,view.height);
-    demoTruth=null;showSource("photo");setStep(2);e.target.value="";
+    showSource("photo");setStep(2);e.target.value="";
     if(pendingAfterPhoto){var fn=pendingAfterPhoto;pendingAfterPhoto=null;fn();}
   };
   img.src=URL.createObjectURL(f);
@@ -538,79 +539,12 @@ $("filePhoto").addEventListener("change",onImageFile);
 $("fileGallery").addEventListener("change",onImageFile);
 $("btnGallery").addEventListener("click",function(){$("fileGallery").click();});
 
-/* ===== Demo asyk drawings (no real asyk needed) ===== */
-var demoTruth=null;
-function R(a,b){return a+Math.random()*(b-a);}
-function asykPath(ctx,broad){
-  ctx.beginPath();
-  for(var k=0;k<=72;k++){
-    var t=k/72*Math.PI*2,lob=broad?0.13:0.07,rr=1+lob*Math.cos(4*t);
-    var x=Math.cos(t)*(broad?82:84)*rr,y=Math.sin(t)*(broad?56:36)*rr*(broad?1:(1-0.12*Math.cos(2*t)));
-    if(k)ctx.lineTo(x,y);else ctx.moveTo(x,y);
-  }
-  ctx.closePath();
-}
-function drawAsyk(ctx,W,cls,o){
-  o=o||{};
-  var bgs=["#f3efe6","#ffffff","#e8edf4","#2a3341","#1e3a2b","#3a2f45"];
-  ctx.fillStyle=o.bg||bgs[Math.floor(Math.random()*bgs.length)];ctx.fillRect(0,0,W,W);
-  ctx.save();
-  ctx.translate(W/2+(o.dx!=null?o.dx:R(-W*.06,W*.06)),W/2+(o.dy!=null?o.dy:R(-W*.06,W*.06)));
-  ctx.rotate(o.rot!=null?o.rot:R(0,Math.PI*2));
-  var sc=(o.sc||R(.85,1.15))*W/400;ctx.scale(sc,sc);
-  var broad=cls<2,warm=R(-12,12);
-  function col(r,g,b,a){return "rgba("+Math.round(r+warm)+","+Math.round(g+warm*.7)+","+Math.round(b)+","+(a==null?1:a)+")";}
-  // shadow
-  ctx.save();ctx.shadowColor="rgba(0,0,0,.22)";ctx.shadowBlur=16;ctx.shadowOffsetY=6;asykPath(ctx,broad);ctx.fillStyle=col(214,184,128);ctx.fill();ctx.restore();
-  // body
-  asykPath(ctx,broad);ctx.save();ctx.clip();
-  var g=ctx.createRadialGradient(-15,-12,6,0,0,95);g.addColorStop(0,col(248,232,196));g.addColorStop(.6,col(226,198,142));g.addColorStop(1,col(176,138,78));
-  ctx.fillStyle=g;ctx.fillRect(-100,-100,200,200);
-  for(var i=0;i<140;i++){ctx.fillStyle=col(120,85,40,R(.04,.12));ctx.beginPath();ctx.arc(R(-85,85),R(-60,60),R(.6,2.2),0,7);ctx.fill();}
-  if(cls===0){ // АЛШЫ: S-тәрізді ойық
-    ctx.lineCap="round";ctx.strokeStyle=col(110,72,30,.6);ctx.lineWidth=10;
-    ctx.beginPath();ctx.moveTo(-58,-8);ctx.bezierCurveTo(-20,-38,20,38,58,8);ctx.stroke();
-    ctx.strokeStyle="rgba(255,250,236,.75)";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-58,-15);ctx.bezierCurveTo(-20,-45,20,31,58,1);ctx.stroke();
-  }else if(cls===1){ // ТӘЙКЕ: шетіндегі терең кертік және төмпешік
-    var g2=ctx.createRadialGradient(40,0,2,40,0,26);g2.addColorStop(0,col(80,52,20,.9));g2.addColorStop(1,col(150,110,60,0));
-    ctx.fillStyle=g2;ctx.beginPath();ctx.ellipse(40,0,26,17,0,0,7);ctx.fill();
-    var g3=ctx.createRadialGradient(-34,-4,2,-34,0,22);g3.addColorStop(0,"rgba(255,252,240,.9)");g3.addColorStop(1,"rgba(255,252,240,0)");
-    ctx.fillStyle=g3;ctx.beginPath();ctx.arc(-34,0,22,0,7);ctx.fill();
-    ctx.strokeStyle=col(120,82,36,.45);ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-6,-40);ctx.lineTo(-6,40);ctx.stroke();
-  }else if(cls===2){ // БҮК: дөңес арқасы жоғары
-    var g4=ctx.createRadialGradient(-10,-8,2,-6,-4,48);g4.addColorStop(0,"rgba(255,253,245,.95)");g4.addColorStop(1,"rgba(255,253,245,0)");
-    ctx.fillStyle=g4;ctx.beginPath();ctx.ellipse(-6,-4,60,30,0,0,7);ctx.fill();
-    ctx.strokeStyle=col(150,110,58,.35);ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-70,8);ctx.quadraticCurveTo(0,22,70,8);ctx.stroke();
-  }else{ // ШІК: ойық жағы жоғары
-    var g5=ctx.createRadialGradient(0,2,3,0,0,42);g5.addColorStop(0,col(92,60,24,.95));g5.addColorStop(.7,col(140,100,50,.85));g5.addColorStop(1,col(170,130,72,0));
-    ctx.fillStyle=g5;ctx.beginPath();ctx.ellipse(0,0,46,20,0,0,7);ctx.fill();
-    ctx.strokeStyle="rgba(255,248,228,.7)";ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-2,50,23,0,Math.PI*1.05,Math.PI*1.95);ctx.stroke();
-  }
-  ctx.restore();
-  asykPath(ctx,broad);ctx.strokeStyle=col(140,104,52,.5);ctx.lineWidth=2;ctx.stroke();
-  ctx.restore();
-}
-var demoC=document.createElement("canvas");demoC.width=demoC.height=400;
-function demoToWork(cls){ // draw a demo asyk and copy its centre into the work canvas (same crop as grab)
-  drawAsyk(demoC.getContext("2d"),400,cls);
-  var crop=400*0.72;wctx.drawImage(demoC,(400-crop)/2,(400-crop)/2,crop,crop,0,0,160,160);
-}
-function throwDemo(){
-  var cls=Math.floor(Math.random()*4);
-  view.width=view.height=600;drawAsyk(view.getContext("2d"),600,cls);
-  demoTruth=cls;showSource("photo");setStep(2);
-  say("playMsg");$("resultBox").classList.add("hidden");$("taskCard").classList.add("hidden");
-}
-$("btnDemo").addEventListener("click",function(){
-  if(!model.samples.some(function(a){return a.some(function(s){return s.d;});})&&model.samples.some(function(a){return !a.length;})){loadDemo();}
-  throwDemo();toast("Демо асық лақтырылды. «Асықтың қалпын тану» түймесін басыңыз");
-});
 function needSource(after){if(mode)return true;pendingAfterPhoto=after;$("filePhoto").click();return false;}
 function grab(){
   var src,sw,sh;
   if(mode==="video"){src=video;sw=video.videoWidth;sh=video.videoHeight;if(!sw)return false;}
   else if(mode==="photo"){src=view;sw=view.width;sh=view.height;} else return false;
-  var s=Math.min(sw,sh),crop=s*0.72;
+  var s=Math.min(sw,sh),crop=mode==="video"?s*0.72:s;
   wctx.drawImage(src,(sw-crop)/2,(sh-crop)/2,crop,crop,0,0,160,160);
   return true;
 }
@@ -650,7 +584,7 @@ function extract(){
   mask=largestBlob(m2);
   var area=0,sx=0,sy=0;
   for(y=0;y<N;y++)for(x=0;x<N;x++)if(mask[y*N+x]){area++;sx+=x;sy+=y;}
-  if(area<N*N*0.02||area>N*N*0.85)return null;
+  if(area<N*N*0.02||area>N*N*0.9)return null;
   var cx=sx/area,cy=sy/area,cxx=0,cyy=0,cxy=0;
   for(y=0;y<N;y++)for(x=0;x<N;x++)if(mask[y*N+x]){var dx=x-cx,dy=y-cy;cxx+=dx*dx;cyy+=dy*dy;cxy+=dx*dy;}
   cxx/=area;cyy/=area;cxy/=area;
@@ -777,21 +711,6 @@ function observe(){ // grab + features of the current view
 
 /* ===== Train UI ===== */
 function smallURL(sz,q){var c=document.createElement("canvas");c.width=c.height=sz;c.getContext("2d").drawImage(work,0,0,sz,sz);return c.toDataURL("image/jpeg",q);}
-function loadDemo(){
-  for(var c=0;c<4;c++){
-    model.samples[c]=model.samples[c].filter(function(s){return !s.d;});
-    for(var i=0;i<10;i++){
-      demoToWork(c);var info=extract();if(!info)continue;
-      model.samples[c].push({f:info.variants,e:embed(info,4),t:smallURL(48,0.6),raw:smallURL(160,0.8),d:1});
-    }
-  }
-  saveModel();renderClasses();toast("Демо үлгілер қосылды: әр қалыпқа 10 үлгі");
-}
-$("btnDemoLoad").addEventListener("click",loadDemo);
-$("btnDemoClear").addEventListener("click",function(){
-  var n=0;for(var c=0;c<4;c++){var before=model.samples[c].length;model.samples[c]=model.samples[c].filter(function(s){return !s.d;});n+=before-model.samples[c].length;}
-  saveModel();renderClasses();toast(n?"Демо үлгілер өшірілді ("+n+")":"Демо үлгілер жоқ");
-});
 var mSel=null;
 function openSample(c,ix){
   var s=model.samples[c][ix];if(!s)return;mSel=[c,ix];
@@ -810,22 +729,66 @@ function renderClasses(){
   var box=$("classes");box.innerHTML="";
   CLASSES.forEach(function(c,i){
     var el=document.createElement("div");el.className="cls lt"+i;
-    el.innerHTML='<div class="top"><span class="nm tx'+i+'">'+c.name+'</span><span class="ct tx'+i+'">'+model.samples[i].length+' үлгі</span></div><div class="ds">'+c.desc+'</div><div class="thumbs"></div><button class="bg'+i+'">'+ic("plus")+'Үлгі қосу</button>';
+    el.innerHTML='<div class="top"><span class="nm tx'+i+'">'+c.name+'</span><span class="ct tx'+i+'">'+model.samples[i].length+' үлгі</span></div><div class="ds">'+c.desc+'</div><div class="thumbs"></div><div class="acts"><button class="add bg'+i+'">'+ic("camera")+'Камерамен</button><button class="gal tx'+i+'">'+ic("image")+'Галереядан</button><button class="clr" title="Осы қалыптың барлық үлгісін тазалау">'+ic("trash")+'</button></div>';
     var th=el.querySelector(".thumbs");
-    model.samples[i].forEach(function(s,ix){var b=document.createElement("button");b.className=s.d?"demo":"";b.title="Басып, өшіру";var im=new Image();im.src=s.t;b.appendChild(im);b.addEventListener("click",function(){openSample(i,ix);});th.appendChild(b);});
-    el.querySelector("button").addEventListener("click",function(){addSample(i);});
+    model.samples[i].forEach(function(s,ix){var b=document.createElement("button");b.title="Басып, өшіру";var im=new Image();im.src=s.t;b.appendChild(im);b.addEventListener("click",function(){openSample(i,ix);});th.appendChild(b);});
+    el.querySelector(".add").addEventListener("click",function(){addFromCamera(i);});
+    el.querySelector(".gal").addEventListener("click",function(){galleryClass=i;$("fileSamples").click();});
+    el.querySelector(".clr").addEventListener("click",function(){clearClass(i);});
     box.appendChild(el);
   });
 }
-function addSample(i){
-  if(!needSource(function(){addSample(i);}))return;
-  if(!grab()){toast("Кадр дайын емес");return;}
-  var info=extract();
-  if(!info){say("trainMsg","warn","Асық табылмады. Асықты жақтаудың ортасына, бір түсті бетке қойыңыз.");return;}
-  model.samples[i].push({f:info.variants,e:embed(info,4),t:smallURL(48,0.6),raw:smallURL(160,0.8)});
-  saveModel();renderClasses();
-  say("trainMsg","good",CLASSES[i].name+" үлгісі қосылды. Барлығы: "+model.samples[i].length);
-  if(mode==="photo")toast("Келесі үлгі үшін асықты бұрып, қайта түсіріңіз");
+function pushSample(i){ // work canvas -> sample
+  var info=extract();if(!info)return false;
+  model.samples[i].push({f:info.variants,e:embed(info,4),t:smallURL(48,0.6),raw:smallURL(160,0.8)});return true;
+}
+function imgToWork(img){ // centre square of a still image -> work canvas
+  var w=img.naturalWidth,h=img.naturalHeight,s=Math.min(w,h);
+  wctx.drawImage(img,(w-s)/2,(h-s)/2,s,s,0,0,160,160);
+}
+var addCls=null;
+// Camera: live video -> current frame; otherwise open the phone camera for a NEW photo every time
+function addFromCamera(i){
+  if(mode==="video"){
+    if(!grab()){toast("Кадр дайын емес");return;}
+    if(pushSample(i)){saveModel();renderClasses();say("trainMsg","good",CLASSES[i].name+": үлгі қосылды ("+model.samples[i].length+"). Асықты сәл бұрып, тағы басыңыз.");}
+    else say("trainMsg","warn","Асық табылмады. Асықты жақтаудың ортасына, бір түсті бетке қойыңыз.");
+    return;
+  }
+  addCls=i;$("fileSampleCam").click();
+}
+function loadFiles(files,i,done){
+  var ok=0,bad=0,k=0;
+  (function next(){
+    if(k>=files.length){saveModel();renderClasses();done(ok,bad);return;}
+    var f=files[k++],img=new Image();
+    img.onload=function(){imgToWork(img);if(pushSample(i))ok++;else bad++;URL.revokeObjectURL(img.src);setTimeout(next,0);};
+    img.onerror=function(){bad++;setTimeout(next,0);};
+    img.src=URL.createObjectURL(f);
+  })();
+}
+function reportAdd(i,ok,bad){
+  if(ok&&!bad)say("trainMsg","good",CLASSES[i].name+": "+ok+" үлгі қосылды. Барлығы: "+model.samples[i].length);
+  else if(ok)say("trainMsg","warn",CLASSES[i].name+": "+ok+" үлгі қосылды, "+bad+" суретте асық анық бөлінбеді (фоны бір түсті емес не асық тым үлкен).");
+  else say("trainMsg","bad","Суретте асық табылмады. Асық бір түсті бетте, толық көрініп тұрған суретті таңдаңыз.");
+}
+$("fileSampleCam").addEventListener("change",function(e){
+  var fs=e.target.files;if(!fs||!fs.length||addCls===null)return;var i=addCls;
+  loadFiles([fs[0]],i,function(ok,bad){reportAdd(i,ok,bad);if(ok)toast("Келесі үлгі үшін асықты бұрып, «Камерамен» түймесін қайта басыңыз");});
+  e.target.value="";
+});
+var galleryClass=null;
+$("fileSamples").addEventListener("change",function(e){
+  var fs=e.target.files;if(!fs||!fs.length||galleryClass===null)return;var i=galleryClass,arr=Array.prototype.slice.call(fs);
+  say("trainMsg","info","Суреттер өңделуде… ("+arr.length+")");
+  loadFiles(arr,i,function(ok,bad){reportAdd(i,ok,bad);});
+  e.target.value="";
+});
+var clrArm=-1,clrT=null;
+function clearClass(i){
+  if(!model.samples[i].length){toast(CLASSES[i].name+": үлгі жоқ");return;}
+  if(clrArm!==i){clrArm=i;clearTimeout(clrT);clrT=setTimeout(function(){clrArm=-1;},3500);toast("Растау үшін "+CLASSES[i].name+" қалпының тазалау түймесін тағы басыңыз");return;}
+  clrArm=-1;var n=model.samples[i].length;model.samples[i]=[];saveModel();renderClasses();say("trainMsg","good",CLASSES[i].name+": "+n+" үлгі тазаланды.");
 }
 $("btnEval").addEventListener("click",function(){
   var n=0,ok=0,per=[[0,0],[0,0],[0,0],[0,0]],ai=false;
@@ -895,11 +858,6 @@ function recognize(){
   var b=$("resBadge");b.innerHTML=c.name+"<small>"+c.desc+"</small>";b.className="badge bg"+r.cls;
   $("resBars").innerHTML=CLASSES.map(function(cc,i){return '<div class="bar"><span>'+cc.name+'</span><i><b class="bg'+i+'" style="width:0"></b></i><em>'+Math.round(r.probs[i]*100)+'%</em></div>';}).join("");
   requestAnimationFrame(function(){requestAnimationFrame(function(){$("resBars").querySelectorAll("b").forEach(function(el,i){el.style.width=Math.round(r.probs[i]*100)+"%";});});});
-  var oldNote=$("resultBox").querySelector(".demo-note");if(oldNote)oldNote.remove();
-  if(demoTruth!==null){
-    var okd=demoTruth===r.cls;
-    $("resultBox").insertAdjacentHTML("beforeend",'<div class="demo-note">Демо асықтың шын қалпы: '+CLASSES[demoTruth].name+'. '+(okd?'Робот дұрыс таныды.':'Робот қателесті.')+'</div>');
-  }
   speak(c.name);
   setTimeout(function(){giveTask(r.cls);},400);
 }
@@ -926,7 +884,7 @@ function giveTask(ci){
 $("btnNext").addEventListener("click",function(){
   setStep(mode==="video"?2:1);$("taskCard").classList.add("hidden");$("resultBox").classList.add("hidden");
   window.scrollTo({top:0,behavior:"smooth"});
-  if(mode==="photo"){demoTruth=null;mode=null;view.classList.add("hidden");$("ph").classList.remove("hidden");$("phText").innerHTML="Асықты лақтырып, <b>«Асықтың қалпын тану»</b> түймесін басыңыз. Камера ашылады.";}
+  if(mode==="photo"){mode=null;view.classList.add("hidden");$("ph").classList.remove("hidden");$("phText").innerHTML="Асықты лақтырып, <b>«Асықтың қалпын тану»</b> түймесін басыңыз. Камера ашылады.";}
 });
 $("btnReset").addEventListener("click",function(){score=0;$("score").textContent=0;store("aiasyk_score","0");toast("Ұпай нөлденді");});
 function speak(t){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(t);u.lang="kk-KZ";u.rate=0.95;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
